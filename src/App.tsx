@@ -5,8 +5,16 @@ import { useWebSocket } from './useWebSocket'
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const worldRef = useRef<World | null>(null)
 
-  useWebSocket()
+  const onMessage = (data: unknown) => {
+    const msg = data as { type: string; payload: { players: Parameters<World['updatePlayers']>[0] } }
+    if (msg?.type === 'state' && worldRef.current) {
+      worldRef.current.updatePlayers(msg.payload.players)
+    }
+  }
+
+  useWebSocket(onMessage)
 
   useEffect(() => {
     const app = new Application({
@@ -17,10 +25,11 @@ function App() {
 
     containerRef.current!.appendChild(app.view as HTMLCanvasElement)
 
-    const world = new World(app)
+    worldRef.current = new World(app)
 
     return () => {
-      world.destroy()
+      worldRef.current?.destroy()
+      worldRef.current = null
       app.destroy(true)
     }
   }, [])
