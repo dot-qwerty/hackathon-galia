@@ -16,6 +16,13 @@ interface Bullet {
   direction: string;
 }
 
+const COLOR_MAP: Record<string, number> = {
+  blue:   0x4488ff,
+  green:  0x44ff88,
+  orange: 0xff8844,
+  purple: 0xaa44ff,
+}
+
 export class World {
   private app: Application;
   private tankLayer: Container;
@@ -23,11 +30,11 @@ export class World {
   private squares: Map<number, Tank> = new Map();
   private bulletSprites: Map<number, Sprite> = new Map();
   private bulletTexture: Texture;
+  private playerColors: Map<number, string> = new Map() // playerId -> color
 
   constructor(app: Application) {
     this.app = app;
 
-    // tanks below, bullets on top
     this.tankLayer = new Container()
     this.bulletLayer = new Container()
     this.app.stage.addChild(this.tankLayer)
@@ -38,6 +45,9 @@ export class World {
 
   updatePlayers(players: Player[]) {
     for (const player of players) {
+      // Track color per player
+      this.playerColors.set(player.id, player.color)
+
       let tank = this.squares.get(player.id);
 
       if (!tank) {
@@ -47,7 +57,7 @@ export class World {
           direction: player.direction,
           variant: player.color,
         });
-        this.tankLayer.addChild(tank.container);  // add to tank layer
+        this.tankLayer.addChild(tank.container);
         this.squares.set(player.id, tank);
       }
 
@@ -60,28 +70,32 @@ export class World {
     }
   }
 
- updatedBullets(bullets: Bullet[]) {
-  // Destroy all existing bullet sprites
-  for (const sprite of this.bulletSprites.values()) {
-    this.bulletLayer.removeChild(sprite)
-    sprite.destroy()
-  }
-  this.bulletSprites.clear()
+  updatedBullets(bullets: Bullet[]) {
+    for (const sprite of this.bulletSprites.values()) {
+      this.bulletLayer.removeChild(sprite)
+      sprite.destroy()
+    }
+    this.bulletSprites.clear()
 
-  // Recreate all bullets fresh
-  for (const bullet of bullets) {
-    const sprite = new Sprite(this.bulletTexture)
-    sprite.anchor.set(0.5)
-    sprite.x = bullet.pos.x
-    sprite.y = bullet.pos.y
-    this.bulletLayer.addChild(sprite)
-    this.bulletSprites.set(bullet.id, sprite)
+    for (const bullet of bullets) {
+      const sprite = new Sprite(this.bulletTexture)
+      sprite.anchor.set(0.5)
+      sprite.x = bullet.pos.x
+      sprite.y = bullet.pos.y
+
+      // Tint bullet by owner's color
+      const color = this.playerColors.get(bullet.playerId)
+      sprite.tint = color ? COLOR_MAP[color] ?? 0xffffff : 0xffffff
+
+      this.bulletLayer.addChild(sprite)
+      this.bulletSprites.set(bullet.id, sprite)
+    }
   }
-}
 
   destroy() {
     this.app.stage.removeChildren();
     this.squares.clear();
     this.bulletSprites.clear();
+    this.playerColors.clear();
   }
 }
