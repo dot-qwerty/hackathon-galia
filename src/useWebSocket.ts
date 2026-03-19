@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const WS_URL = 'ws://172.20.10.4:8080/ws'
+
 const DIRECTION_KEYS: Record<string, string> = {
   ArrowUp: 'up',
   ArrowDown: 'down',
@@ -8,8 +9,16 @@ const DIRECTION_KEYS: Record<string, string> = {
   ArrowRight: 'right',
 }
 
+type Bullet = {
+  id: number
+  playerId: number
+  pos: { x: number; y: number }
+  direction: string
+}
+
 export function useWebSocket(onMessage?: (data: unknown) => void) {
   const ws = useRef<WebSocket | null>(null)
+  const [bullets, setBullets] = useState<Bullet[]>([])
 
   useEffect(() => {
     ws.current = new WebSocket(WS_URL)
@@ -20,10 +29,11 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
       }
     }
 
-    // Listen for messages
     ws.current.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data)
+        // Update bullets if present in the message
+        if (data.bullets) setBullets(data.bullets)
         onMessage?.(data)
       } catch {
         onMessage?.(event.data)
@@ -31,7 +41,15 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
     }
 
     const pressed = new Set<string>()
+
     const onKeyDown = (e: KeyboardEvent) => {
+      // Space — shoot
+      if (e.code === 'Space') {
+        e.preventDefault()
+        send({ action: 'shoot' })
+        return
+      }
+
       const direction = DIRECTION_KEYS[e.key]
       if (!direction || pressed.has(e.key)) return
       pressed.add(e.key)
@@ -46,7 +64,6 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
       if (pressed.size === 0) {
         send({ direction: 'stop' })
       } else {
-        // Send the last still-pressed direction
         const lastKey = [...pressed].findLast(k => DIRECTION_KEYS[k])
         if (lastKey) send({ direction: DIRECTION_KEYS[lastKey] })
       }
@@ -62,5 +79,5 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
     }
   }, [onMessage])
 
-  return ws
+  return { ws, bullets }
 }
