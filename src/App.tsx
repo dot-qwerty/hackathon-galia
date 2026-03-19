@@ -10,9 +10,9 @@ function App() {
 
   useEffect(() => {
     const app = new Application({
+      backgroundColor: 'dodgerblue',
       width: 800,
       height: 800,
-      backgroundColor: 0xffffff,
     })
 
     containerRef.current!.appendChild(app.view as HTMLCanvasElement)

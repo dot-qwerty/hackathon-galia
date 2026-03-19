@@ -27,6 +27,7 @@ export function useWebSocket() {
       const direction = DIRECTION_KEYS[e.key]
       if (!direction || pressed.has(e.key)) return
       pressed.add(e.key)
+      console.log('Sending direction', direction)
       send({ direction })
     }
 
@@ -34,6 +35,7 @@ export function useWebSocket() {
       const direction = DIRECTION_KEYS[e.key]
       if (!direction) return
       pressed.delete(e.key)
+      console.log('======= STOP ==========');
       send({ direction: 'stop' })
     }
 
