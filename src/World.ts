@@ -1,4 +1,4 @@
-import { Application, Sprite, Texture } from "pixi.js-legacy";
+import { Application, Container, Sprite, Texture } from "pixi.js-legacy";
 import { Tank } from "./Tank";
 
 interface Player {
@@ -18,12 +18,21 @@ interface Bullet {
 
 export class World {
   private app: Application;
+  private tankLayer: Container;
+  private bulletLayer: Container;
   private squares: Map<number, Tank> = new Map();
   private bulletSprites: Map<number, Sprite> = new Map();
   private bulletTexture: Texture;
 
   constructor(app: Application) {
     this.app = app;
+
+    // tanks below, bullets on top
+    this.tankLayer = new Container()
+    this.bulletLayer = new Container()
+    this.app.stage.addChild(this.tankLayer)
+    this.app.stage.addChild(this.bulletLayer)
+
     this.bulletTexture = Texture.from('src/tank-sprites/bullet.png')
   }
 
@@ -38,7 +47,7 @@ export class World {
           direction: player.direction,
           variant: player.color,
         });
-        this.app.stage.addChild(tank.container);
+        this.tankLayer.addChild(tank.container);  // add to tank layer
         this.squares.set(player.id, tank);
       }
 
@@ -51,33 +60,24 @@ export class World {
     }
   }
 
-  updatedBullets(bullets: Bullet[]) {
-    const incomingIds = new Set(bullets.map(b => b.id))
-
-    // Remove bullets no longer in state
-    for (const [id, sprite] of this.bulletSprites) {
-      if (!incomingIds.has(id)) {
-        this.app.stage.removeChild(sprite)
-        sprite.destroy()
-        this.bulletSprites.delete(id)
-      }
-    }
-
-    // Add or update bullets
-    for (const bullet of bullets) {
-      let sprite = this.bulletSprites.get(bullet.id)
-
-      if (!sprite) {
-        sprite = new Sprite(this.bulletTexture)
-        sprite.anchor.set(0.5)
-        this.app.stage.addChild(sprite)
-        this.bulletSprites.set(bullet.id, sprite)
-      }
-
-      sprite.x = bullet.pos.x
-      sprite.y = bullet.pos.y
-    }
+ updatedBullets(bullets: Bullet[]) {
+  // Destroy all existing bullet sprites
+  for (const sprite of this.bulletSprites.values()) {
+    this.bulletLayer.removeChild(sprite)
+    sprite.destroy()
   }
+  this.bulletSprites.clear()
+
+  // Recreate all bullets fresh
+  for (const bullet of bullets) {
+    const sprite = new Sprite(this.bulletTexture)
+    sprite.anchor.set(0.5)
+    sprite.x = bullet.pos.x
+    sprite.y = bullet.pos.y
+    this.bulletLayer.addChild(sprite)
+    this.bulletSprites.set(bullet.id, sprite)
+  }
+}
 
   destroy() {
     this.app.stage.removeChildren();
