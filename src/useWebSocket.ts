@@ -37,15 +37,18 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
       pressed.add(e.key)
       send({ direction })
     }
-    
+
     const onKeyUp = (e: KeyboardEvent) => {
       const direction = DIRECTION_KEYS[e.key]
       if (!direction) return
       pressed.delete(e.key)
-      
-      // Only stop if no direction keys are still held
+
       if (pressed.size === 0) {
         send({ direction: 'stop' })
+      } else {
+        // Send the last still-pressed direction
+        const lastKey = [...pressed].findLast(k => DIRECTION_KEYS[k])
+        if (lastKey) send({ direction: DIRECTION_KEYS[lastKey] })
       }
     }
 
