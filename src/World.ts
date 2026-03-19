@@ -23,8 +23,8 @@ export class World {
 
       if (!tank) {
         tank = new Tank({
-          initX: player.pos.x,
-          initY: player.pos.y,
+          initX: player.pos.x + 16,
+          initY: player.pos.y + 16,
           direction: player.direction,
           variant: player.color,
         });
@@ -33,8 +33,8 @@ export class World {
       }
 
       tank.update({
-        newX: player.pos.x,
-        newY: player.pos.y,
+        newX: player.pos.x + 16,
+        newY: player.pos.y + 16,
         newDirection: player.direction,
       });
       tank.container.alpha = player.connected ? 1 : 0;
