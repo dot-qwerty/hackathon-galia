@@ -1,4 +1,4 @@
-import { Application } from "pixi.js-legacy";
+import { Application, Graphics } from "pixi.js-legacy";
 import { Tank } from "./Tank";
 
 interface Player {
@@ -9,9 +9,17 @@ interface Player {
   direction: "up" | "down" | "left" | "right";
 }
 
+interface Bullet {
+  id: number;
+  playerId: number;
+  pos: { x: number; y: number };
+  direction: string;
+}
+
 export class World {
   private app: Application;
   private squares: Map<number, Tank> = new Map();
+  private bulletSprites: Map<number, Graphics> = new Map();
 
   constructor(app: Application) {
     this.app = app;
@@ -41,12 +49,39 @@ export class World {
     }
   }
 
-  updatedBullets(bullets: Array<{ "id": number, "playerId": number, "pos": { "x": number, "y": number }, "direction": string }>) {
-    console.log('=== bullets', bullets);
+  updatedBullets(bullets: Bullet[]) {
+    const incomingIds = new Set(bullets.map(b => b.id))
+
+    // Remove bullets that are no longer in the state
+    for (const [id, sprite] of this.bulletSprites) {
+      if (!incomingIds.has(id)) {
+        this.app.stage.removeChild(sprite)
+        sprite.destroy()
+        this.bulletSprites.delete(id)
+      }
+    }
+
+    // Add or update bullets
+    for (const bullet of bullets) {
+      let sprite = this.bulletSprites.get(bullet.id)
+
+      if (!sprite) {
+        sprite = new Graphics()
+        sprite.beginFill(0xffff00)
+        sprite.drawCircle(0, 0, 4)
+        sprite.endFill()
+        this.app.stage.addChild(sprite)
+        this.bulletSprites.set(bullet.id, sprite)
+      }
+
+      sprite.x = bullet.pos.x
+      sprite.y = bullet.pos.y
+    }
   }
 
   destroy() {
     this.app.stage.removeChildren();
     this.squares.clear();
+    this.bulletSprites.clear();
   }
 }
