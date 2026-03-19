@@ -1,4 +1,4 @@
-import { Application, Graphics } from "pixi.js-legacy";
+import { Application, Sprite, Texture } from "pixi.js-legacy";
 import { Tank } from "./Tank";
 
 interface Player {
@@ -19,10 +19,12 @@ interface Bullet {
 export class World {
   private app: Application;
   private squares: Map<number, Tank> = new Map();
-  private bulletSprites: Map<number, Graphics> = new Map();
+  private bulletSprites: Map<number, Sprite> = new Map();
+  private bulletTexture: Texture;
 
   constructor(app: Application) {
     this.app = app;
+    this.bulletTexture = Texture.from('src/tank-sprites/bullet.png')
   }
 
   updatePlayers(players: Player[]) {
@@ -52,7 +54,7 @@ export class World {
   updatedBullets(bullets: Bullet[]) {
     const incomingIds = new Set(bullets.map(b => b.id))
 
-    // Remove bullets that are no longer in the state
+    // Remove bullets no longer in state
     for (const [id, sprite] of this.bulletSprites) {
       if (!incomingIds.has(id)) {
         this.app.stage.removeChild(sprite)
@@ -66,10 +68,8 @@ export class World {
       let sprite = this.bulletSprites.get(bullet.id)
 
       if (!sprite) {
-        sprite = new Graphics()
-        sprite.beginFill(0xffff00)
-        sprite.drawCircle(0, 0, 4)
-        sprite.endFill()
+        sprite = new Sprite(this.bulletTexture)
+        sprite.anchor.set(0.5)
         this.app.stage.addChild(sprite)
         this.bulletSprites.set(bullet.id, sprite)
       }
