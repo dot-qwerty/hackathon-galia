@@ -24,10 +24,8 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
     ws.current.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data)
-        console.log('Received message:', data)
         onMessage?.(data)
       } catch {
-        console.log('Received raw message:', event.data)
         onMessage?.(event.data)
       }
     }
@@ -37,15 +35,18 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
       const direction = DIRECTION_KEYS[e.key]
       if (!direction || pressed.has(e.key)) return
       pressed.add(e.key)
-      console.log('Sending direction', direction)
       send({ direction })
     }
+    
     const onKeyUp = (e: KeyboardEvent) => {
       const direction = DIRECTION_KEYS[e.key]
       if (!direction) return
       pressed.delete(e.key)
-      console.log('======= STOP ==========')
-      send({ direction: 'stop' })
+      
+      // Only stop if no direction keys are still held
+      if (pressed.size === 0) {
+        send({ direction: 'stop' })
+      }
     }
 
     window.addEventListener('keydown', onKeyDown)

@@ -23,7 +23,6 @@ export class World {
   }
 
   updatePlayers(players: Player[]) {
-    console.log('======UPDATE======')
     for (const player of players) {
       let square = this.squares.get(player.id)
 
@@ -37,7 +36,6 @@ export class World {
       }
 
       square.x = player.pos.x
-      console.log('=======Assigning square x', player.pos.x)
       square.y = player.pos.y
       square.visible = player.connected
     }
