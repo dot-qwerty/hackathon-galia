@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 const WS_URL = 'ws://172.20.10.4:8080/ws'
 
@@ -9,21 +9,13 @@ const DIRECTION_KEYS: Record<string, string> = {
   ArrowRight: 'right',
 }
 
-type Bullet = {
-  id: number
-  playerId: number
-  pos: { x: number; y: number }
-  direction: string
-}
-
 export function useWebSocket(onMessage?: (data: unknown) => void) {
   const ws = useRef<WebSocket | null>(null)
-  const [bullets, setBullets] = useState<Bullet[]>([])
 
   useEffect(() => {
     ws.current = new WebSocket(WS_URL)
 
-    const send = (msg: object) => {
+    const send = (msg: { direction: string } | { action: string }) => {
       if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify(msg))
       }
@@ -32,8 +24,6 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
     ws.current.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data)
-        // Update bullets if present in the message
-        if (data.bullets) setBullets(data.bullets)
         onMessage?.(data)
       } catch {
         onMessage?.(event.data)
@@ -78,6 +68,4 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
       ws.current?.close()
     }
   }, [onMessage])
-
-  return { ws, bullets }
 }
