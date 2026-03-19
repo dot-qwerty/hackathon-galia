@@ -15,6 +15,7 @@ function App() {
     }
     if (msg?.type === 'state' && worldRef.current) {
       worldRef.current.updatePlayers(msg.payload.players)
+      worldRef.current.updatedBullets(msg.payload.bullets)
     }
   }
 

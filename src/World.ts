@@ -41,6 +41,10 @@ export class World {
     }
   }
 
+  updatedBullets(bullets: Array<{ "id": number, "playerId": number, "pos": { "x": number, "y": number }, "direction": string }>) {
+    console.log('=== bullets', bullets);
+  }
+
   destroy() {
     this.app.stage.removeChildren();
     this.squares.clear();
