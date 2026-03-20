@@ -6,7 +6,7 @@ export class Tank {
   private readonly bodySprite: Sprite;
   private readonly turretSprite: Sprite;
   private readonly variant: string;
-  nameLabel: Text;
+  private readonly nameLabel: Text;
 
   constructor(props: { color: number, name: string }) {
     this.variant = getRandomVariant();
