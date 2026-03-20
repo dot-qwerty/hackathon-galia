@@ -58,7 +58,7 @@ export class World {
 
     for (const player of players) {
       // Track color per player
-      const randomColor = generateRandomColor();
+      const randomColor = generateRandomColor(player.id);
       this.playerColors.set(player.id, randomColor);
 
       let tank = this.squares.get(player.id);
@@ -130,6 +130,7 @@ export class World {
   }
 }
 
-function generateRandomColor() {
-  return Math.floor(Math.random() * 0xffffff);
+function generateRandomColor(id: number) {
+  const seed = (id * 2654435761) >>> 0  // Knuth multiplicative hash
+  return seed % 0xffffff
 }
