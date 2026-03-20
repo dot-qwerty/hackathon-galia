@@ -13,10 +13,12 @@ function App() {
   const [name, setName] = useState<undefined | string>(undefined);
   const [input, setInput] = useState("");
   const [stats, setStats] = useState<Array<{ playerId: number; name: string; frags: number }>>([]);
+  const [myPlayerId, setMyPlayerId] = useState<undefined | number>(undefined);
 
   const onMessage = useCallback((message: Message) => {
     if (message?.type === "joined") {
       myPlayerIdRef.current = message.payload.playerId;
+      setMyPlayerId(message.payload.playerId);
     } else if (message?.type === "map" && worldRef.current) {
       worldRef.current.updateMap(message.payload.grid);
     } else if (message?.type === "state" && worldRef.current) {
@@ -170,7 +172,7 @@ function App() {
                 {stats.map((s, i) => (
                   <tr key={s.playerId} style={{
                     borderBottom: "1px solid #2a2a2a",
-                    background: s.playerId === myPlayerIdRef.current ? "#1e3a5f" : "transparent",
+                    background: s.playerId === myPlayerId ? "#1e3a5f" : "transparent",
                   }}>
                     <td style={{ padding: "6px 12px", color: "#666" }}>{i + 1}</td>
                     <td style={{ padding: "6px 12px" }}>{s.name}</td>
