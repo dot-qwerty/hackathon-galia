@@ -8,6 +8,7 @@ export type Player = {
   };
   connected: boolean;
   direction: Direction;
+  name: string;
 };
 
 export type Bullet = {

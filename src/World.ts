@@ -31,7 +31,7 @@ export class World {
       let tank = this.squares.get(player.id);
 
       if (!tank) {
-        tank = new Tank({ color: randomColor });
+        tank = new Tank({ color: randomColor, name: player.name });
         this.tankLayer.addChild(tank.container);
         this.squares.set(player.id, tank);
       }

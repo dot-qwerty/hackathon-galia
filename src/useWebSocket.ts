@@ -14,11 +14,12 @@ const DIRECTION_KEYS: Record<string, Direction> = {
 type SendDirection = Direction | "stop";
 type SendAction = "shoot";
 
-export function useWebSocket(onMessage?: (message: Message) => void) {
-  const ws = useRef<undefined | WebSocket>(undefined);
+export function useWebSocket(name: undefined | string, onMessage?: (message: Message) => void) {
+  const ws = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    ws.current = new WebSocket(WS_URL);
+    if (!name) return
+    ws.current = new WebSocket(`${WS_URL}?name=${encodeURIComponent(name)}`)
 
     const send = (
       msg: { direction: SendDirection } | { action: SendAction },
@@ -74,5 +75,5 @@ export function useWebSocket(onMessage?: (message: Message) => void) {
       window.removeEventListener("keyup", onKeyUp);
       ws.current?.close();
     };
-  }, [onMessage]);
+  }, [name, onMessage]);
 }

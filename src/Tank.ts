@@ -1,4 +1,4 @@
-import { Container, Sprite } from "pixi.js-legacy";
+import {Container, Sprite, Text} from "pixi.js-legacy";
 import type { Direction } from "./types";
 
 export class Tank {
@@ -6,8 +6,9 @@ export class Tank {
   private readonly bodySprite: Sprite;
   private readonly turretSprite: Sprite;
   private readonly variant: string;
+  nameLabel: Text;
 
-  constructor(props: { color: number }) {
+  constructor(props: { color: number, name: string }) {
     this.variant = getRandomVariant();
 
     this.bodySprite = Sprite.from(`/src/tank-sprites/${this.variant}-body.png`);
@@ -22,8 +23,19 @@ export class Tank {
     this.turretSprite.y = -4;
     this.turretSprite.tint = props.color;
 
+    this.nameLabel = new Text(props.name, {
+      fontSize: 11,
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3,
+      align: 'center',
+    });
+    this.nameLabel.anchor.set(0.5, 1);
+    this.nameLabel.y = -22;
+
     this.container.addChild(this.bodySprite);
     this.container.addChild(this.turretSprite);
+    this.container.addChild(this.nameLabel);
   }
 
   update(props: { x: number; y: number; newDirection: Direction }) {
@@ -57,6 +69,7 @@ export class Tank {
     this.container.destroy({ children: true });
     this.bodySprite.destroy({ children: true });
     this.turretSprite.destroy({ children: true });
+    this.nameLabel.destroy({ children: true });
   }
 }
 
