@@ -3,7 +3,7 @@ import { Tank } from "./Tank";
 import type { Bullet, Player } from "./types";
 
 const TILE_SIZE = 32;
-const shootSound = new Audio('/src/sounds/shoot.ogg');
+const shootSound = new Audio("/src/sounds/shoot.ogg");
 
 export class World {
   private readonly app: Application;
@@ -27,8 +27,8 @@ export class World {
     this.app.stage.addChild(this.tankLayer);
     this.app.stage.addChild(this.bulletLayer);
 
-    this.bulletTexture = Texture.from('src/tank-sprites/bullet.png');
-    this.wallTexture = Texture.from('src/world-sprites/wall.png');
+    this.bulletTexture = Texture.from("src/tank-sprites/bullet.png");
+    this.wallTexture = Texture.from("src/world-sprites/wall.png");
   }
 
   updateMap(grid: number[][]) {
@@ -48,7 +48,7 @@ export class World {
   }
 
   updatePlayers(players: Array<Player>, myPlayerId: undefined | number) {
-    const activeIds = new Set(players.map(p => p.id));
+    const activeIds = new Set(players.map((p) => p.id));
     for (const [id, tank] of this.squares) {
       if (!activeIds.has(id)) {
         this.tankLayer.removeChild(tank.container);
@@ -94,7 +94,11 @@ export class World {
   updatedBullets(bullets: Array<Bullet>, myPlayerId: number | undefined) {
     // Play sound for each new bullet shot by me
     for (const bullet of bullets) {
-      if (bullet.playerId === myPlayerId && !this.knownBulletIds.has(bullet.id)) {
+      if (
+        bullet.playerId === myPlayerId &&
+        !this.knownBulletIds.has(bullet.id)
+      ) {
+        this.squares.get(myPlayerId)!.runFireAnimation();
         shootSound.currentTime = 0;
         shootSound.play();
       }
@@ -143,6 +147,6 @@ export class World {
 }
 
 function generateRandomColor(id: number) {
-  const seed = (id * 2654435761) >>> 0  // Knuth multiplicative hash
-  return seed % 0xffffff
+  const seed = (id * 2654435761) >>> 0; // Knuth multiplicative hash
+  return seed % 0xffffff;
 }

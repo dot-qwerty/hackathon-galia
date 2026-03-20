@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Application } from "pixi.js-legacy";
 import { World } from "./World";
 import { useWebSocket } from "./useWebSocket";
+import { loadAnimations } from "./Animations";
 import type { Message } from "./types";
 
 function App() {
@@ -45,6 +46,8 @@ function App() {
     containerRef.current.appendChild(app.view as HTMLCanvasElement);
 
     worldRef.current = new World(app);
+
+    loadAnimations();
 
     return () => {
       worldRef.current?.destroy();
