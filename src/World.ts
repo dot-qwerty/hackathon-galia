@@ -16,6 +16,7 @@ export class World {
   private readonly bulletTexture: Texture;
   private readonly wallTexture: Texture;
   private readonly playerColors: Map<number, number> = new Map();
+  private muted: boolean = false;
 
   constructor(app: Application) {
     this.app = app;
@@ -29,6 +30,11 @@ export class World {
 
     this.bulletTexture = Texture.from("src/tank-sprites/bullet.png");
     this.wallTexture = Texture.from("src/world-sprites/wall.png");
+  }
+
+  setMuted(muted: boolean) {
+    this.muted = muted;
+    shootSound.volume = muted ? 0 : 1;
   }
 
   updateMap(grid: number[][]) {
@@ -59,7 +65,6 @@ export class World {
     }
 
     for (const player of players) {
-      // Track color per player
       const randomColor = generateRandomColor(player.id);
       this.playerColors.set(player.id, randomColor);
 
@@ -78,7 +83,6 @@ export class World {
       });
       tank.container.alpha = player.connected ? 1 : 0;
 
-      // Camera: center screen on my tank, clamped to world edges
       if (player.id === myPlayerId) {
         const sw = this.app.screen.width;
         const sh = this.app.screen.height;
@@ -92,7 +96,6 @@ export class World {
   }
 
   updatedBullets(bullets: Array<Bullet>, myPlayerId: number | undefined) {
-    // Play sound for each new bullet shot by me
     for (const bullet of bullets) {
       if (
         bullet.playerId === myPlayerId &&
@@ -100,11 +103,13 @@ export class World {
       ) {
         const square = this.squares.get(myPlayerId);
         if (!square) {
-          throw new Error('updatedBullets square not fount')
+          throw new Error("updatedBullets square not found");
         }
         square.runFireAnimation();
-        shootSound.currentTime = 0;
-        shootSound.play();
+        if (!this.muted) {
+          shootSound.currentTime = 0;
+          shootSound.play();
+        }
       }
     }
     this.knownBulletIds.clear();
@@ -122,7 +127,6 @@ export class World {
       sprite.x = bullet.pos.x;
       sprite.y = bullet.pos.y;
 
-      // Tint bullet by owner's color
       const color = this.playerColors.get(bullet.playerId);
       if (color === undefined) {
         throw new Error("updatedBullets color not found");
@@ -151,6 +155,6 @@ export class World {
 }
 
 function generateRandomColor(id: number) {
-  const seed = (id * 2654435761) >>> 0; // Knuth multiplicative hash
+  const seed = (id * 2654435761) >>> 0;
   return seed % 0xffffff;
 }

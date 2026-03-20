@@ -12,8 +12,11 @@ function App() {
 
   const [name, setName] = useState<undefined | string>(undefined);
   const [input, setInput] = useState("");
-  const [stats, setStats] = useState<Array<{ playerId: number; name: string; frags: number }>>([]);
+  const [stats, setStats] = useState<
+    Array<{ playerId: number; name: string; frags: number }>
+  >([]);
   const [myPlayerId, setMyPlayerId] = useState<undefined | number>(undefined);
+  const [muted, setMuted] = useState(false);
 
   const onMessage = useCallback((message: Message) => {
     if (message?.type === "joined") {
@@ -44,7 +47,7 @@ function App() {
 
     async function init() {
       if (!containerRef.current) return;
-      
+
       await loadAnimations();
 
       app = new Application({
@@ -52,21 +55,33 @@ function App() {
         width: 800,
         height: 800,
       });
-  
+
       containerRef.current.appendChild(app.view as HTMLCanvasElement);
-  
+
       worldRef.current = new World(app);
-  
     }
 
     init();
-
 
     return () => {
       worldRef.current?.destroy();
       worldRef.current = undefined;
       app?.destroy(true);
     };
+  }, []);
+
+  useEffect(() => {
+    if (worldRef.current) {
+      worldRef.current.setMuted(muted);
+    }
+  }, [muted]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "KeyM") setMuted((m) => !m);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   const handleSubmit = () => {
@@ -138,50 +153,126 @@ function App() {
       )}
       <div style={{ display: "flex", alignItems: "flex-start" }}>
         <div ref={containerRef} />
-        <div style={{
-          marginLeft: 16,
-          minWidth: 180,
-          background: "#1a1a1a",
-          borderRadius: 8,
-          overflow: "hidden",
-          color: "#fff",
-          fontFamily: "monospace",
-        }}>
-          <div style={{
-            padding: "8px 12px",
-            background: "#2a2a2a",
-            fontWeight: "bold",
-            fontSize: 13,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-          }}>
-            Scoreboard
-          </div>
-          {stats.length === 0 ? (
-            <div style={{ padding: "8px 12px", color: "#666", fontSize: 13 }}>No data yet</div>
-          ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ color: "#888", borderBottom: "1px solid #333" }}>
-                  <th style={{ padding: "6px 12px", textAlign: "left", fontWeight: "normal" }}>#</th>
-                  <th style={{ padding: "6px 12px", textAlign: "left", fontWeight: "normal" }}>Name</th>
-                  <th style={{ padding: "6px 12px", textAlign: "right", fontWeight: "normal" }}>Frags</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.map((s, i) => (
-                  <tr key={s.playerId} style={{
-                    borderBottom: "1px solid #2a2a2a",
-                    background: s.playerId === myPlayerId ? "#1e3a5f" : "transparent",
-                  }}>
-                    <td style={{ padding: "6px 12px", color: "#666" }}>{i + 1}</td>
-                    <td style={{ padding: "6px 12px" }}>{s.name}</td>
-                    <td style={{ padding: "6px 12px", textAlign: "right", color: "#4488ff", fontWeight: "bold" }}>{s.frags}</td>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            marginLeft: 16,
+          }}
+        >
+          <button
+            onClick={() => setMuted((m) => !m)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 4,
+              border: "none",
+              background: "#1a1a1a",
+              color: muted ? "#666" : "#fff",
+              cursor: "pointer",
+              fontFamily: "monospace",
+              fontSize: 13,
+              textAlign: "left",
+            }}
+          >
+            {muted ? "🔇 Muted" : "🔊 Sound"}{" "}
+            <span style={{ color: "#444", fontSize: 11 }}>[M]</span>
+          </button>
+          <div
+            style={{
+              minWidth: 180,
+              background: "#1a1a1a",
+              borderRadius: 8,
+              overflow: "hidden",
+              color: "#fff",
+              fontFamily: "monospace",
+            }}
+          >
+            <div
+              style={{
+                padding: "8px 12px",
+                background: "#2a2a2a",
+                fontWeight: "bold",
+                fontSize: 13,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              Scoreboard
+            </div>
+            {stats.length === 0 ? (
+              <div style={{ padding: "8px 12px", color: "#666", fontSize: 13 }}>
+                No data yet
+              </div>
+            ) : (
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 13,
+                }}
+              >
+                <thead>
+                  <tr style={{ color: "#888", borderBottom: "1px solid #333" }}>
+                    <th
+                      style={{
+                        padding: "6px 12px",
+                        textAlign: "left",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      #
+                    </th>
+                    <th
+                      style={{
+                        padding: "6px 12px",
+                        textAlign: "left",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      Name
+                    </th>
+                    <th
+                      style={{
+                        padding: "6px 12px",
+                        textAlign: "right",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      Frags
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {stats.map((s, i) => (
+                    <tr
+                      key={s.playerId}
+                      style={{
+                        borderBottom: "1px solid #2a2a2a",
+                        background:
+                          s.playerId === myPlayerId ? "#1e3a5f" : "transparent",
+                      }}
+                    >
+                      <td style={{ padding: "6px 12px", color: "#666" }}>
+                        {i + 1}
+                      </td>
+                      <td style={{ padding: "6px 12px" }}>{s.name}</td>
+                      <td
+                        style={{
+                          padding: "6px 12px",
+                          textAlign: "right",
+                          color: "#4488ff",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {s.frags}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </div>
     </>
