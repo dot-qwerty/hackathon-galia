@@ -6,22 +6,31 @@ import { useWebSocket } from "./useWebSocket";
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<World | null>(null);
+  const myPlayerIdRef = useRef<number | null>(null);
 
   const onMessage = (data: unknown) => {
-    const msg = data as {
-      type: string;
-      payload: {
-        players: Parameters<World["updatePlayers"]>[0];
-        bullets: Array<{
-          id: number;
-          playerId: number;
-          pos: { x: number; y: number };
-          direction: string;
-        }>;
-      };
-    };
-    if (msg?.type === "state" && worldRef.current) {
-      worldRef.current.updatePlayers(msg.payload.players);
+    const msg = data as
+      | {
+          type: 'joined';
+          payload: { playerId: number };
+        }
+      | {
+          type: 'state';
+          payload: {
+            players: Parameters<World['updatePlayers']>[0];
+            bullets: Array<{
+              id: number;
+              playerId: number;
+              pos: { x: number; y: number };
+              direction: string;
+            }>;
+          };
+        };
+
+    if (msg?.type === 'joined') {
+      myPlayerIdRef.current = msg.payload.playerId;
+    } else if (msg?.type === 'state' && worldRef.current) {
+      worldRef.current.updatePlayers(msg.payload.players, myPlayerIdRef.current);
       worldRef.current.updatedBullets(msg.payload.bullets);
     }
   };
