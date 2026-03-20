@@ -1,4 +1,4 @@
-import {Container, Sprite, Text} from "pixi.js-legacy";
+import {Container, Sprite, Text, TextStyle} from "pixi.js-legacy";
 import type { Direction } from "./types";
 
 export class Tank {
@@ -23,13 +23,14 @@ export class Tank {
     this.turretSprite.y = -4;
     this.turretSprite.tint = props.color;
 
-    this.nameLabel = new Text(props.name, {
-      fontSize: 11,
+    this.nameLabel = new Text(props.name, new TextStyle({
+      fontSize: 17,
       fill: '#ffffff',
       stroke: '#000000',
       strokeThickness: 3,
+      lineJoin: 'round',
       align: 'center',
-    });
+    }));
     this.nameLabel.anchor.set(0.5, 1);
     this.nameLabel.y = -22;
 
