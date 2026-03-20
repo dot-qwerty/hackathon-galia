@@ -2,27 +2,16 @@ import { useEffect, useRef } from "react";
 import { Application } from "pixi.js-legacy";
 import { World } from "./World";
 import { useWebSocket } from "./useWebSocket";
+import type { Message } from "./types";
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const worldRef = useRef<World | null>(null);
+  const worldRef = useRef<undefined | World>(undefined);
 
-  const onMessage = (data: unknown) => {
-    const msg = data as {
-      type: string;
-      payload: {
-        players: Parameters<World["updatePlayers"]>[0];
-        bullets: Array<{
-          id: number;
-          playerId: number;
-          pos: { x: number; y: number };
-          direction: string;
-        }>;
-      };
-    };
-    if (msg?.type === "state" && worldRef.current) {
-      worldRef.current.updatePlayers(msg.payload.players);
-      worldRef.current.updatedBullets(msg.payload.bullets);
+  const onMessage = (message: Message) => {
+    if (message?.type === "state" && worldRef.current) {
+      worldRef.current.updatePlayers(message.payload.players);
+      worldRef.current.updatedBullets(message.payload.bullets);
     }
   };
 
@@ -41,7 +30,7 @@ function App() {
 
     return () => {
       worldRef.current?.destroy();
-      worldRef.current = null;
+      worldRef.current = undefined;
       app.destroy(true);
     };
   }, []);

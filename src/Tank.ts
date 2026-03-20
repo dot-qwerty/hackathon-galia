@@ -1,61 +1,39 @@
 import { Container, Sprite } from "pixi.js-legacy";
+import type { Direction } from "./types";
 
 export class Tank {
-  container = new Container();
-  bodySprite: Sprite;
-  turretSprite: Sprite;
-  x: number;
-  y: number;
-  direction: "up" | "down" | "left" | "right";
-  variant: "blue" | "green" | "orange" | "purple";
+  readonly container = new Container();
+  private readonly bodySprite: Sprite;
+  private readonly turretSprite: Sprite;
+  private readonly variant: string;
 
-  constructor(props: {
-    initX: number;
-    initY: number;
-    direction: "up" | "down" | "left" | "right";
-    variant: "blue" | "green" | "orange" | "purple";
-  }) {
-    this.x = props.initX;
-    this.y = props.initY;
-    this.direction = props.direction;
-    this.variant = props.variant;
+  constructor(props: { color: number }) {
+    this.variant = getRandomVariant();
 
-    this.bodySprite = Sprite.from(
-      `/src/tank-sprites/${props.variant}-body.png`,
-    );
+    this.bodySprite = Sprite.from(`/src/tank-sprites/${this.variant}-body.png`);
     this.turretSprite = Sprite.from(
-      `/src/tank-sprites/${props.variant}-turret.png`,
+      `/src/tank-sprites/${this.variant}-turret.png`,
     );
-    this.rotateTurret(props.direction);
 
     this.bodySprite.anchor.set(0.5);
+    this.bodySprite.tint = props.color;
+
     this.turretSprite.anchor.set(0.5, 0.25);
     this.turretSprite.y = -4;
-
-    this.container.x = props.initX;
-    this.container.y = props.initY;
+    this.turretSprite.tint = props.color;
 
     this.container.addChild(this.bodySprite);
     this.container.addChild(this.turretSprite);
   }
 
-  update(props: {
-    newX: number;
-    newY: number;
-    newDirection: "up" | "down" | "left" | "right";
-  }) {
-    this.x = props.newX;
-    this.y = props.newY;
-    this.direction = props.newDirection;
-
-    this.container.x = props.newX;
-    this.container.y = props.newY;
+  update(props: { x: number; y: number; newDirection: Direction }) {
+    this.container.x = props.x;
+    this.container.y = props.y;
     this.rotateTurret(props.newDirection);
   }
 
-  private rotateTurret(newDirection: "up" | "down" | "left" | "right") {
-    this.direction = newDirection;
-    switch (this.direction) {
+  private rotateTurret(newDirection: Direction) {
+    switch (newDirection) {
       case "up": {
         this.turretSprite.angle = 180;
         return;
@@ -74,4 +52,13 @@ export class Tank {
       }
     }
   }
+}
+
+/**
+ *
+ */
+const variants = ["blue", "green", "orange", "purple"];
+
+function getRandomVariant() {
+  return variants[Math.floor(Math.random() * variants.length)];
 }
