@@ -3,7 +3,7 @@
   "compatibility_date": "2022-07-12",
   "workers_dev": true,
   "assets": {
-    "directory": "build",
+    "directory": "dist",
     "html_handling": "force-trailing-slash",
     "not_found_handling": "single-page-application",
   },
