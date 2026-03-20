@@ -22,7 +22,12 @@ function App() {
         message.payload.players,
         myPlayerIdRef.current,
       );
-      worldRef.current.updatedBullets(message.payload.bullets, myPlayerIdRef.current);
+      worldRef.current.updatedBullets(
+        message.payload.bullets,
+        myPlayerIdRef.current,
+      );
+    } else if (message?.type === "stats") {
+      console.log({ message });
     }
   }, []);
 

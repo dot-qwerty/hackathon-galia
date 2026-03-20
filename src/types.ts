@@ -40,4 +40,12 @@ export type Message =
         players: Array<Player>;
         bullets: Array<Bullet>;
       };
+    }
+  | {
+      type: "stats";
+      payload: Array<{
+        playerId: number;
+        name: string;
+        frags: number;
+      }>;
     };
