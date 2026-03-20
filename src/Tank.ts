@@ -52,6 +52,12 @@ export class Tank {
       }
     }
   }
+
+  destroy() {
+    this.container.destroy({ children: true });
+    this.bodySprite.destroy({ children: true });
+    this.turretSprite.destroy({ children: true });
+  }
 }
 
 /**

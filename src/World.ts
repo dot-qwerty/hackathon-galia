@@ -71,8 +71,9 @@ export class World {
 
       // Tint bullet by owner's color
       const color = this.playerColors.get(bullet.playerId);
-      if (color === undefined)
+      if (color === undefined) {
         throw new Error("updatedBullets color not found");
+      }
       sprite.tint = color;
 
       this.bulletLayer.addChild(sprite);
@@ -81,10 +82,17 @@ export class World {
   }
 
   destroy() {
-    this.app.stage.removeChildren();
+    this.tankLayer.destroy({ children: true });
+    this.bulletLayer.destroy({ children: true });
+    for (const [, square] of this.squares) square.destroy();
+    for (const [, bulletSprite] of this.bulletSprites) {
+      bulletSprite.destroy({ children: true });
+    }
+    this.bulletTexture.destroy();
     this.squares.clear();
     this.bulletSprites.clear();
     this.playerColors.clear();
+    this.app.stage.removeChildren();
   }
 }
 

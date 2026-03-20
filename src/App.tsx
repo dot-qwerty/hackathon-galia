@@ -24,13 +24,15 @@ function App() {
   useWebSocket(onMessage);
 
   useEffect(() => {
+    if (!containerRef.current) return;
+
     const app = new Application({
       backgroundColor: 0xc2b280,
       width: 800,
       height: 800,
     });
 
-    containerRef.current!.appendChild(app.view as HTMLCanvasElement);
+    containerRef.current.appendChild(app.view as HTMLCanvasElement);
 
     worldRef.current = new World(app);
 
