@@ -72,7 +72,7 @@ export class World {
       if (player.id === myPlayerId) {
         const sw = this.app.screen.width;
         const sh = this.app.screen.height;
-        const WORLD = 1000;
+        const WORLD = 1024;
         const cx = sw / 2 - (player.pos.x + 16);
         const cy = sh / 2 - (player.pos.y + 16);
         this.app.stage.x = Math.min(0, Math.max(sw - WORLD, cx));
