@@ -23,7 +23,7 @@ export class Tank {
     this.turretSprite.y = -4;
     this.turretSprite.tint = props.color;
 
-    this.nameLabel = new Text(props.name, new TextStyle({
+    this.nameLabel = new Text(props.name.slice(0, 8), new TextStyle({
       fontSize: 17,
       fill: '#ffffff',
       stroke: '#000000',
