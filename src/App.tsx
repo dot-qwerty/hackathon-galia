@@ -7,10 +7,16 @@ import type { Message } from "./types";
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<undefined | World>(undefined);
+  const myPlayerIdRef = useRef<undefined | number>(undefined);
 
   const onMessage = (message: Message) => {
-    if (message?.type === "state" && worldRef.current) {
-      worldRef.current.updatePlayers(message.payload.players);
+    if (message?.type === "joined") {
+      myPlayerIdRef.current = message.payload.playerId;
+    } else if (message?.type === "state" && worldRef.current) {
+      worldRef.current.updatePlayers(
+        message.payload.players,
+        myPlayerIdRef.current,
+      );
       worldRef.current.updatedBullets(message.payload.bullets);
     }
   };

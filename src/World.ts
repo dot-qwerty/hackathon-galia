@@ -22,7 +22,7 @@ export class World {
     this.bulletTexture = Texture.from("src/tank-sprites/bullet.png");
   }
 
-  updatePlayers(players: Array<Player>) {
+  updatePlayers(players: Array<Player>, myPlayerId: undefined | number) {
     for (const player of players) {
       // Track color per player
       const randomColor = generateRandomColor();
@@ -42,6 +42,17 @@ export class World {
         newDirection: player.direction,
       });
       tank.container.alpha = player.connected ? 1 : 0;
+
+      // Camera: center screen on my tank, clamped to world edges
+      if (player.id === myPlayerId) {
+        const sw = this.app.screen.width;
+        const sh = this.app.screen.height;
+        const WORLD = 1024;
+        const cx = sw / 2 - (player.pos.x + 16);
+        const cy = sh / 2 - (player.pos.y + 16);
+        this.app.stage.x = Math.min(0, Math.max(sw - WORLD, cx));
+        this.app.stage.y = Math.min(0, Math.max(sh - WORLD, cy));
+      }
     }
   }
 
