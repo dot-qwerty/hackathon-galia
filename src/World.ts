@@ -2,24 +2,47 @@ import { Application, Container, Sprite, Texture } from "pixi.js-legacy";
 import { Tank } from "./Tank";
 import type { Bullet, Player } from "./types";
 
+const TILE_SIZE = 32;
+
 export class World {
   private readonly app: Application;
+  private readonly mapLayer: Container;
   private readonly tankLayer: Container;
   private readonly bulletLayer: Container;
   private readonly squares: Map<number, Tank> = new Map();
   private readonly bulletSprites: Map<number, Sprite> = new Map();
   private readonly bulletTexture: Texture;
-  private readonly playerColors: Map<number, number> = new Map(); // playerId -> color
+  private readonly wallTexture: Texture;
+  private readonly playerColors: Map<number, number> = new Map();
 
   constructor(app: Application) {
     this.app = app;
 
+    this.mapLayer = new Container();
     this.tankLayer = new Container();
     this.bulletLayer = new Container();
+    this.app.stage.addChild(this.mapLayer);
     this.app.stage.addChild(this.tankLayer);
     this.app.stage.addChild(this.bulletLayer);
 
-    this.bulletTexture = Texture.from("src/tank-sprites/bullet.png");
+    this.bulletTexture = Texture.from('src/tank-sprites/bullet.png');
+    this.wallTexture = Texture.from('src/world-sprites/wall.png');
+  }
+
+  updateMap(grid: number[][]) {
+    this.mapLayer.removeChildren();
+    for (let row = 0; row < grid.length; row++) {
+      for (let col = 0; col < grid[row].length; col++) {
+        if (grid[row][col] === 1) {
+          const sprite = new Sprite(this.wallTexture);
+          sprite.x = col * TILE_SIZE;
+          sprite.y = row * TILE_SIZE;
+          sprite.width = TILE_SIZE;
+          sprite.height = TILE_SIZE;
+          this.mapLayer.addChild(sprite);
+        }
+      }
+    }
   }
 
   updatePlayers(players: Array<Player>, myPlayerId: undefined | number) {
@@ -82,6 +105,7 @@ export class World {
   }
 
   destroy() {
+    this.mapLayer.destroy({ children: true });
     this.tankLayer.destroy({ children: true });
     this.bulletLayer.destroy({ children: true });
     for (const [, square] of this.squares) square.destroy();

@@ -29,6 +29,12 @@ export type Message =
       };
     }
   | {
+      type: "map";
+      payload: {
+        grid: number[][];
+      };
+    }
+  | {
       type: "state";
       payload: {
         players: Array<Player>;

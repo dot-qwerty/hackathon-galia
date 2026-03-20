@@ -15,6 +15,8 @@ function App() {
   const onMessage = useCallback((message: Message) => {
     if (message?.type === "joined") {
       myPlayerIdRef.current = message.payload.playerId;
+    } else if (message?.type === "map" && worldRef.current) {
+      worldRef.current.updateMap(message.payload.grid);
     } else if (message?.type === "state" && worldRef.current) {
       worldRef.current.updatePlayers(
         message.payload.players,
