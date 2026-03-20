@@ -12,6 +12,7 @@ function App() {
 
   const [name, setName] = useState<undefined | string>(undefined);
   const [input, setInput] = useState("");
+  const [stats, setStats] = useState<Array<{ playerId: number; name: string; frags: number }>>([]);
 
   const onMessage = useCallback((message: Message) => {
     if (message?.type === "joined") {
@@ -28,7 +29,7 @@ function App() {
         myPlayerIdRef.current,
       );
     } else if (message?.type === "stats") {
-      console.log({ message });
+      setStats([...message.payload].sort((a, b) => b.frags - a.frags));
     }
   }, []);
 
@@ -123,7 +124,54 @@ function App() {
           </div>
         </div>
       )}
-      <div ref={containerRef} />
+      <div style={{ display: "flex", alignItems: "flex-start" }}>
+        <div ref={containerRef} />
+        <div style={{
+          marginLeft: 16,
+          minWidth: 180,
+          background: "#1a1a1a",
+          borderRadius: 8,
+          overflow: "hidden",
+          color: "#fff",
+          fontFamily: "monospace",
+        }}>
+          <div style={{
+            padding: "8px 12px",
+            background: "#2a2a2a",
+            fontWeight: "bold",
+            fontSize: 13,
+            letterSpacing: 1,
+            textTransform: "uppercase",
+          }}>
+            Scoreboard
+          </div>
+          {stats.length === 0 ? (
+            <div style={{ padding: "8px 12px", color: "#666", fontSize: 13 }}>No data yet</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ color: "#888", borderBottom: "1px solid #333" }}>
+                  <th style={{ padding: "6px 12px", textAlign: "left", fontWeight: "normal" }}>#</th>
+                  <th style={{ padding: "6px 12px", textAlign: "left", fontWeight: "normal" }}>Name</th>
+                  <th style={{ padding: "6px 12px", textAlign: "right", fontWeight: "normal" }}>Frags</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.map((s, i) => (
+                  <tr key={s.playerId} style={{
+                    borderBottom: "1px solid #2a2a2a",
+                    background: s.playerId === myPlayerIdRef.current ? "#1e3a5f" : "transparent",
+                  }}>
+                    <td style={{ padding: "6px 12px", color: "#666" }}>{i + 1}</td>
+                    <td style={{ padding: "6px 12px" }}>{s.name}</td>
+                    <td style={{ padding: "6px 12px", textAlign: "right", color: "#4488ff", fontWeight: "bold" }}>{s.frags}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </>
   );
 }
