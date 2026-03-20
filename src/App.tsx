@@ -8,30 +8,30 @@ import type { Message } from "./types";
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<undefined | World>(undefined);
+  const myPlayerIdRef = useRef<undefined | number>(undefined);
 
   const [name, setName] = useState<undefined | string>(undefined);
   const [input, setInput] = useState("");
   const [stats, setStats] = useState<Array<{ playerId: number; name: string; frags: number }>>([]);
-  const [myPlayerId, setMyPlayerId] = useState<undefined | number>(undefined)
 
   const onMessage = useCallback((message: Message) => {
     if (message?.type === "joined") {
-      setMyPlayerId(message.payload.playerId);
+      myPlayerIdRef.current = message.payload.playerId;
     } else if (message?.type === "map" && worldRef.current) {
       worldRef.current.updateMap(message.payload.grid);
     } else if (message?.type === "state" && worldRef.current) {
       worldRef.current.updatePlayers(
         message.payload.players,
-        myPlayerId,
+        myPlayerIdRef.current,
       );
       worldRef.current.updatedBullets(
         message.payload.bullets,
-        myPlayerId,
+        myPlayerIdRef.current,
       );
     } else if (message?.type === "stats") {
       setStats([...message.payload].sort((a, b) => b.frags - a.frags));
     }
-  }, [myPlayerId]);
+  }, []);
 
   useWebSocket(name, onMessage);
 
@@ -160,7 +160,7 @@ function App() {
                 {stats.map((s, i) => (
                   <tr key={s.playerId} style={{
                     borderBottom: "1px solid #2a2a2a",
-                    background: s.playerId === myPlayerId ? "#1e3a5f" : "transparent",
+                    background: s.playerId === myPlayerIdRef.current ? "#1e3a5f" : "transparent",
                   }}>
                     <td style={{ padding: "6px 12px", color: "#666" }}>{i + 1}</td>
                     <td style={{ padding: "6px 12px" }}>{s.name}</td>
