@@ -8,16 +8,11 @@ export class Tank {
   private readonly bodySprite: Sprite;
   private readonly turretSprite: Sprite;
   private muzzleFireAnimation: AnimatedGIF | undefined;
-  private readonly variant: string;
   private readonly nameLabel: Text;
 
   constructor(props: { color: number; name: string }) {
-    this.variant = getRandomVariant();
-
-    this.bodySprite = Sprite.from(`/tank-sprites/${this.variant}-body.png`);
-    this.turretSprite = Sprite.from(
-      `/tank-sprites/${this.variant}-turret.png`,
-    );
+    this.bodySprite = Sprite.from(`/tank-sprites/body.png`);
+    this.turretSprite = Sprite.from(`/tank-sprites/turret.png`);
 
     this.bodySprite.anchor.set(0.5);
     this.bodySprite.tint = props.color;
@@ -138,13 +133,4 @@ export class Tank {
   destroy() {
     this.container.destroy({ children: true });
   }
-}
-
-/**
- *
- */
-const variants = ["blue", "green", "orange", "purple"];
-
-function getRandomVariant() {
-  return variants[Math.floor(Math.random() * variants.length)];
 }
