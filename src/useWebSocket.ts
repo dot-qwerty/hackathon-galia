@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Direction, Message } from "./types";
 
-const WS_URL = "ws://172.20.10.4:8080/ws";
-// const WS_URL = 'wss://hackathon-galia-server.onrender.com/ws'
+const WS_URL = import.meta.env.PROD ? 'wss://hackathon-galia-server.onrender.com/ws': "ws://172.20.10.4:8080/ws";
 
 const DIRECTION_KEYS: Record<string, Direction> = {
   ArrowUp: "up",    KeyW: "up",
