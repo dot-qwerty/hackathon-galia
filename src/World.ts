@@ -1,8 +1,9 @@
-import { Application, Container, Sprite, Texture } from "pixi.js-legacy";
+import { Application, Container, Sprite, Text, Texture } from "pixi.js-legacy";
 import { Tank } from "./Tank";
 
 interface Player {
   id: number;
+  name: string;
   pos: { x: number; y: number };
   connected: boolean;
   color: "blue" | "green" | "orange" | "purple";
@@ -56,6 +57,7 @@ export class World {
           initY: player.pos.y + 16,
           direction: player.direction,
           variant: player.color,
+          name: player.name,
         });
         this.tankLayer.addChild(tank.container);
         this.squares.set(player.id, tank);

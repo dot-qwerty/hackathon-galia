@@ -9,11 +9,12 @@ const DIRECTION_KEYS: Record<string, string> = {
   ArrowRight: 'right',
 }
 
-export function useWebSocket(onMessage?: (data: unknown) => void) {
+export function useWebSocket(name: string | null, onMessage?: (data: unknown) => void) {
   const ws = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    ws.current = new WebSocket(WS_URL)
+    if (!name) return
+    ws.current = new WebSocket(`${WS_URL}?name=${encodeURIComponent(name)}`)
 
     const send = (msg: { direction: string } | { action: string }) => {
       if (ws.current?.readyState === WebSocket.OPEN) {
@@ -67,5 +68,5 @@ export function useWebSocket(onMessage?: (data: unknown) => void) {
       window.removeEventListener('keyup', onKeyUp)
       ws.current?.close()
     }
-  }, [onMessage])
+  }, [name, onMessage])
 }
