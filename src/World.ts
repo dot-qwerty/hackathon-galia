@@ -97,16 +97,13 @@ export class World {
 
   updatedBullets(bullets: Array<Bullet>, myPlayerId: number | undefined) {
     for (const bullet of bullets) {
-      if (
-        bullet.playerId === myPlayerId &&
-        !this.knownBulletIds.has(bullet.id)
-      ) {
-        const square = this.squares.get(myPlayerId);
-        if (!square) {
-          throw new Error("updatedBullets square not found");
+      if (!this.knownBulletIds.has(bullet.id)) {
+        const square = this.squares.get(bullet.playerId);
+        if (square) {
+          square.runFireAnimation();
         }
-        square.runFireAnimation();
-        if (!this.muted) {
+
+        if (bullet.playerId === myPlayerId && !this.muted) {
           shootSound.currentTime = 0;
           shootSound.play();
         }
