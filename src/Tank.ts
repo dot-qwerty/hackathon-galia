@@ -21,10 +21,10 @@ export class Tank {
     this.variant = props.variant;
 
     this.bodySprite = Sprite.from(
-      `/src/tank-sprites/${props.variant}-body.png`,
+      `/src/tank-sprites/blue-body.png`,
     );
     this.turretSprite = Sprite.from(
-      `/src/tank-sprites/${props.variant}-turret.png`,
+      `/src/tank-sprites/blue-turret.png`,
     );
     this.rotateTurret(props.direction);
 
