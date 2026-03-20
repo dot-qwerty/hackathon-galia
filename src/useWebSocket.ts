@@ -15,11 +15,13 @@ type SendDirection = Direction | "stop";
 type SendAction = "shoot";
 
 export function useWebSocket(name: undefined | string, onMessage?: (message: Message) => void) {
-  const ws = useRef<WebSocket | null>(null)
+  const ws = useRef<WebSocket | null>(null);
+  const shootInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!name) return
-    ws.current = new WebSocket(`${WS_URL}?name=${encodeURIComponent(name)}`)
+    if (!name) return;
+
+    ws.current = new WebSocket(`${WS_URL}?name=${encodeURIComponent(name)}`);
 
     const send = (
       msg: { direction: SendDirection } | { action: SendAction },
@@ -41,10 +43,12 @@ export function useWebSocket(name: undefined | string, onMessage?: (message: Mes
     const pressed = new Set<string>();
 
     const onKeyDown = (e: KeyboardEvent) => {
-      // Space — shoot
       if (e.code === "Space") {
         e.preventDefault();
-        send({ action: "shoot" });
+        if (!shootInterval.current) {
+          send({ action: "shoot" });
+          shootInterval.current = setInterval(() => send({ action: "shoot" }), 100);
+        }
         return;
       }
 
@@ -55,6 +59,12 @@ export function useWebSocket(name: undefined | string, onMessage?: (message: Mes
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        clearInterval(shootInterval.current!);
+        shootInterval.current = null;
+        return;
+      }
+
       const direction = DIRECTION_KEYS[e.key];
       if (!direction) return;
       pressed.delete(e.key);
@@ -73,6 +83,7 @@ export function useWebSocket(name: undefined | string, onMessage?: (message: Mes
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+      clearInterval(shootInterval.current!);
       ws.current?.close();
     };
   }, [name, onMessage]);
