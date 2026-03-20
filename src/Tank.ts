@@ -68,7 +68,7 @@ export class Tank {
 
   private loadMuzzleFire() {
     if (
-      AnimationsBuffer["muzzle-fire"] === null ||
+      AnimationsBuffer["muzzle-fire"] === undefined ||
       this.muzzleFireAnimation !== undefined
     )
       return;
@@ -82,7 +82,7 @@ export class Tank {
     this.container.addChild(this.muzzleFireAnimation);
   }
 
-  private rotateMuzzleFire(newDirection: "up" | "down" | "left" | "right") {
+  private rotateMuzzleFire(newDirection: Direction) {
     if (this.muzzleFireAnimation === undefined) return;
 
     const newMuzzleFirePositions = muzzleFirePositions[newDirection];
@@ -91,7 +91,7 @@ export class Tank {
     this.muzzleFireAnimation.y = newMuzzleFirePositions.y;
   }
 
-  private rotateTurret(newDirection: "up" | "down" | "left" | "right") {
+  private rotateTurret(newDirection: Direction) {
     this.rotateMuzzleFire(newDirection);
     switch (newDirection) {
       case "up": {
@@ -128,7 +128,7 @@ function getRandomVariant() {
 }
 
 const muzzleFirePositions: Record<
-  "up" | "down" | "left" | "right",
+  Direction,
   { angle: number; x: number; y: number }
 > = {
   ["up"]: { angle: 180, x: 0, y: -28 },

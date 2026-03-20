@@ -38,22 +38,32 @@ function App() {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const app = new Application({
-      backgroundColor: 0xc2b280,
-      width: 800,
-      height: 800,
-    });
+    let app: undefined | Application = undefined;
 
-    containerRef.current.appendChild(app.view as HTMLCanvasElement);
+    async function init() {
+      if (!containerRef.current) return;
+      
+      await loadAnimations();
 
-    worldRef.current = new World(app);
+      app = new Application({
+        backgroundColor: 0xc2b280,
+        width: 800,
+        height: 800,
+      });
+  
+      containerRef.current.appendChild(app.view as HTMLCanvasElement);
+  
+      worldRef.current = new World(app);
+  
+    }
 
-    loadAnimations();
+    init();
+
 
     return () => {
       worldRef.current?.destroy();
       worldRef.current = undefined;
-      app.destroy(true);
+      app?.destroy(true);
     };
   }, []);
 

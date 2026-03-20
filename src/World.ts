@@ -98,7 +98,11 @@ export class World {
         bullet.playerId === myPlayerId &&
         !this.knownBulletIds.has(bullet.id)
       ) {
-        this.squares.get(myPlayerId)!.runFireAnimation();
+        const square = this.squares.get(myPlayerId);
+        if (!square) {
+          throw new Error('updatedBullets square not fount')
+        }
+        square.runFireAnimation();
         shootSound.currentTime = 0;
         shootSound.play();
       }

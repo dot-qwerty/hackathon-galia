@@ -6,8 +6,8 @@ const AnimationAssets: Record<AnimationType, string> = {
   ["muzzle-fire"]: muzzleFireGif,
 };
 
-export const AnimationsBuffer: Record<AnimationType, ArrayBuffer | null> = {
-  ["muzzle-fire"]: null,
+export const AnimationsBuffer: Record<AnimationType, undefined | ArrayBuffer> = {
+  ["muzzle-fire"]: undefined,
 };
 
 export const loadAnimations = async () => {
