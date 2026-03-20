@@ -1,4 +1,3 @@
-import { Assets } from "pixi.js-legacy";
 import muzzleFireGif from "./animations/muzzle-fire/muzzle-fire.gif";
 
 type AnimationType = "muzzle-fire";
@@ -18,21 +17,4 @@ export const loadAnimations = async () => {
       AnimationsBuffer[key as AnimationType] = await response.arrayBuffer();
     }),
   );
-
-  await Assets.load([
-    'src/tank-sprites/blue-body.png',
-    'src/tank-sprites/blue-turret.png',
-    'src/tank-sprites/bullet.png',
-    'src/tank-sprites/green-body.png',
-    'src/tank-sprites/green-turret.png',
-    'src/tank-sprites/orange-body.png',
-    'src/tank-sprites/orange-turret.png',
-    'src/tank-sprites/purple-body.png',
-    'src/tank-sprites/purple-turret.png',
-    'src/world-sprites/flag.png',
-    'src/world-sprites/invincibility.png',
-    'src/world-sprites/no-flag.png',
-    'src/world-sprites/speedup.png',
-    'src/world-sprites/wall.png',
-  ])
 };
