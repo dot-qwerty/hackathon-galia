@@ -15,6 +15,8 @@ export class World {
   private readonly knownBulletIds: Set<number> = new Set();
   private readonly bulletTexture: Texture;
   private readonly wallTexture: Texture;
+  private readonly speedTexture: Texture;
+  private readonly invincibilityTexture: Texture;
   private readonly playerColors: Map<number, number> = new Map();
   private muted: boolean = false;
 
@@ -30,6 +32,8 @@ export class World {
 
     this.bulletTexture = Texture.from("src/tank-sprites/bullet.png");
     this.wallTexture = Texture.from("src/world-sprites/wall.png");
+    this.speedTexture = Texture.from("src/world-sprites/speedup.png");
+    this.invincibilityTexture = Texture.from("src/world-sprites/invincibility.png");
   }
 
   setMuted(muted: boolean) {
@@ -41,14 +45,20 @@ export class World {
     this.mapLayer.removeChildren();
     for (let row = 0; row < grid.length; row++) {
       for (let col = 0; col < grid[row].length; col++) {
-        if (grid[row][col] === 1) {
-          const sprite = new Sprite(this.wallTexture);
-          sprite.x = col * TILE_SIZE;
-          sprite.y = row * TILE_SIZE;
-          sprite.width = TILE_SIZE;
-          sprite.height = TILE_SIZE;
-          this.mapLayer.addChild(sprite);
-        }
+        const cell = grid[row][col];
+        if (cell === 0) continue;
+        const texture =
+          cell === 1 ? this.wallTexture :
+          cell === 2 ? this.speedTexture :
+          cell === 3 ? this.invincibilityTexture :
+          null;
+        if (!texture) continue;
+        const sprite = new Sprite(texture);
+        sprite.x = col * TILE_SIZE;
+        sprite.y = row * TILE_SIZE;
+        sprite.width = TILE_SIZE;
+        sprite.height = TILE_SIZE;
+        this.mapLayer.addChild(sprite);
       }
     }
   }
