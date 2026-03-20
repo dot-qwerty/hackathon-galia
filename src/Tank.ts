@@ -85,10 +85,32 @@ export class Tank {
   private rotateMuzzleFire(newDirection: Direction) {
     if (this.muzzleFireAnimation === undefined) return;
 
-    const newMuzzleFirePositions = muzzleFirePositions[newDirection];
-    this.muzzleFireAnimation.angle = newMuzzleFirePositions.angle;
-    this.muzzleFireAnimation.x = newMuzzleFirePositions.x;
-    this.muzzleFireAnimation.y = newMuzzleFirePositions.y;
+    switch (newDirection) {
+      case "up": {
+        this.muzzleFireAnimation.angle = 180;
+        this.muzzleFireAnimation.x = 0;
+        this.muzzleFireAnimation.y = -28;
+        return;
+      }
+      case "down": {
+        this.muzzleFireAnimation.angle = 0;
+        this.muzzleFireAnimation.x = 0;
+        this.muzzleFireAnimation.y = 20;
+        return;
+      }
+      case "left": {
+        this.muzzleFireAnimation.angle = 90;
+        this.muzzleFireAnimation.x = -24;
+        this.muzzleFireAnimation.y = -4;
+        return;
+      }
+      case "right": {
+        this.muzzleFireAnimation.angle = 270;
+        this.muzzleFireAnimation.x = 24;
+        this.muzzleFireAnimation.y = -4;
+        return;
+      }
+    }
   }
 
   private rotateTurret(newDirection: Direction) {
@@ -126,13 +148,3 @@ const variants = ["blue", "green", "orange", "purple"];
 function getRandomVariant() {
   return variants[Math.floor(Math.random() * variants.length)];
 }
-
-const muzzleFirePositions: Record<
-  Direction,
-  { angle: number; x: number; y: number }
-> = {
-  ["up"]: { angle: 180, x: 0, y: -28 },
-  ["down"]: { angle: 0, x: 0, y: 20 },
-  ["left"]: { angle: 90, x: -24, y: -4 },
-  ["right"]: { angle: 270, x: 24, y: -4 },
-};
