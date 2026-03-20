@@ -14,9 +14,9 @@ export class Tank {
   constructor(props: { color: number; name: string }) {
     this.variant = getRandomVariant();
 
-    this.bodySprite = Sprite.from(`/src/tank-sprites/${this.variant}-body.png`);
+    this.bodySprite = Sprite.from(`/tank-sprites/${this.variant}-body.png`);
     this.turretSprite = Sprite.from(
-      `/src/tank-sprites/${this.variant}-turret.png`,
+      `/tank-sprites/${this.variant}-turret.png`,
     );
 
     this.bodySprite.anchor.set(0.5);

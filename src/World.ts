@@ -3,7 +3,7 @@ import { Tank } from "./Tank";
 import type { Bullet, Player } from "./types";
 
 const TILE_SIZE = 32;
-const shootSound = new Audio("/src/sounds/shoot.ogg");
+const shootSound = new Audio("/sounds/shoot.ogg");
 
 export class World {
   private readonly app: Application;
@@ -30,10 +30,10 @@ export class World {
     this.app.stage.addChild(this.tankLayer);
     this.app.stage.addChild(this.bulletLayer);
 
-    this.bulletTexture = Texture.from("src/tank-sprites/bullet.png");
-    this.wallTexture = Texture.from("src/world-sprites/wall.png");
-    this.speedTexture = Texture.from("src/world-sprites/speedup.png");
-    this.invincibilityTexture = Texture.from("src/world-sprites/invincibility.png");
+    this.bulletTexture = Texture.from("/tank-sprites/bullet.png");
+    this.wallTexture = Texture.from("/world-sprites/wall.png");
+    this.speedTexture = Texture.from("/world-sprites/speedup.png");
+    this.invincibilityTexture = Texture.from("/world-sprites/invincibility.png");
   }
 
   setMuted(muted: boolean) {
