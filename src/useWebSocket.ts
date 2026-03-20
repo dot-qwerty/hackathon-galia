@@ -5,10 +5,10 @@ const WS_URL = "ws://172.20.10.4:8080/ws";
 // const WS_URL = 'wss://hackathon-galia-server.onrender.com/ws'
 
 const DIRECTION_KEYS: Record<string, Direction> = {
-  ArrowUp: "up",
-  ArrowDown: "down",
-  ArrowLeft: "left",
-  ArrowRight: "right",
+  ArrowUp: "up",    KeyW: "up",
+  ArrowDown: "down", KeyS: "down",
+  ArrowLeft: "left", KeyA: "left",
+  ArrowRight: "right", KeyD: "right",
 };
 
 type SendDirection = Direction | "stop";
@@ -43,7 +43,7 @@ export function useWebSocket(name: undefined | string, onMessage?: (message: Mes
     const pressed = new Set<string>();
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
+      if (e.code === "Space" || e.code === "KeyF") {
         e.preventDefault();
         if (!shootInterval.current) {
           send({ action: "shoot" });
@@ -52,22 +52,22 @@ export function useWebSocket(name: undefined | string, onMessage?: (message: Mes
         return;
       }
 
-      const direction = DIRECTION_KEYS[e.key];
-      if (!direction || pressed.has(e.key)) return;
-      pressed.add(e.key);
+      const direction = DIRECTION_KEYS[e.code];
+      if (!direction || pressed.has(e.code)) return;
+      pressed.add(e.code);
       send({ direction });
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
+      if (e.code === "Space" || e.code === "KeyF") {
         clearInterval(shootInterval.current!);
         shootInterval.current = null;
         return;
       }
 
-      const direction = DIRECTION_KEYS[e.key];
+      const direction = DIRECTION_KEYS[e.code];
       if (!direction) return;
-      pressed.delete(e.key);
+      pressed.delete(e.code);
 
       if (pressed.size === 0) {
         send({ direction: "stop" });
