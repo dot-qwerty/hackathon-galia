@@ -22,7 +22,7 @@ function App() {
         message.payload.players,
         myPlayerIdRef.current,
       );
-      worldRef.current.updatedBullets(message.payload.bullets);
+      worldRef.current.updatedBullets(message.payload.bullets, myPlayerIdRef.current);
     }
   }, []);
 

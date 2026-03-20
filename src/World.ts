@@ -3,6 +3,7 @@ import { Tank } from "./Tank";
 import type { Bullet, Player } from "./types";
 
 const TILE_SIZE = 32;
+const shootSound = new Audio('/src/sounds/shoot.ogg');
 
 export class World {
   private readonly app: Application;
@@ -11,6 +12,7 @@ export class World {
   private readonly bulletLayer: Container;
   private readonly squares: Map<number, Tank> = new Map();
   private readonly bulletSprites: Map<number, Sprite> = new Map();
+  private readonly knownBulletIds: Set<number> = new Set();
   private readonly bulletTexture: Texture;
   private readonly wallTexture: Texture;
   private readonly playerColors: Map<number, number> = new Map();
@@ -89,7 +91,17 @@ export class World {
     }
   }
 
-  updatedBullets(bullets: Array<Bullet>) {
+  updatedBullets(bullets: Array<Bullet>, myPlayerId: number | undefined) {
+    // Play sound for each new bullet shot by me
+    for (const bullet of bullets) {
+      if (bullet.playerId === myPlayerId && !this.knownBulletIds.has(bullet.id)) {
+        shootSound.currentTime = 0;
+        shootSound.play();
+      }
+    }
+    this.knownBulletIds.clear();
+    for (const bullet of bullets) this.knownBulletIds.add(bullet.id);
+
     for (const sprite of this.bulletSprites.values()) {
       this.bulletLayer.removeChild(sprite);
       sprite.destroy();
