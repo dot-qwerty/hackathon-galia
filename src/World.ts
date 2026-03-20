@@ -46,6 +46,16 @@ export class World {
   }
 
   updatePlayers(players: Array<Player>, myPlayerId: undefined | number) {
+    const activeIds = new Set(players.map(p => p.id));
+    for (const [id, tank] of this.squares) {
+      if (!activeIds.has(id)) {
+        this.tankLayer.removeChild(tank.container);
+        tank.destroy();
+        this.squares.delete(id);
+        this.playerColors.delete(id);
+      }
+    }
+
     for (const player of players) {
       // Track color per player
       const randomColor = generateRandomColor();
