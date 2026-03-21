@@ -1,0 +1,89 @@
+import { useEffect, useRef } from "react";
+import type { Direction, Message } from "./types";
+
+const WS_URL = import.meta.env.PROD ? 'wss://hackathon-galia-server.onrender.com/ws': "ws://172.20.10.4:8080/ws";
+
+const DIRECTION_KEYS: Record<string, Direction> = {
+  ArrowUp: "up",    KeyW: "up",
+  ArrowDown: "down", KeyS: "down",
+  ArrowLeft: "left", KeyA: "left",
+  ArrowRight: "right", KeyD: "right",
+};
+
+type SendDirection = Direction | "stop";
+type SendAction = "shoot";
+
+export function useWebSocket(name: undefined | string, onMessage?: (message: Message) => void) {
+  const ws = useRef<WebSocket | null>(null);
+  const shootInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!name) return;
+
+    ws.current = new WebSocket(`${WS_URL}?name=${encodeURIComponent(name)}`);
+
+    const send = (
+      msg: { direction: SendDirection } | { action: SendAction },
+    ) => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify(msg));
+      }
+    };
+
+    ws.current.onmessage = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        onMessage?.(data);
+      } catch {
+        onMessage?.(event.data);
+      }
+    };
+
+    const pressed = new Set<string>();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.code === "KeyF") {
+        e.preventDefault();
+        if (!shootInterval.current) {
+          send({ action: "shoot" });
+          shootInterval.current = setInterval(() => send({ action: "shoot" }), 100);
+        }
+        return;
+      }
+
+      const direction = DIRECTION_KEYS[e.code];
+      if (!direction || pressed.has(e.code)) return;
+      pressed.add(e.code);
+      send({ direction });
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.code === "KeyF") {
+        clearInterval(shootInterval.current!);
+        shootInterval.current = null;
+        return;
+      }
+
+      const direction = DIRECTION_KEYS[e.code];
+      if (!direction) return;
+      pressed.delete(e.code);
+
+      if (pressed.size === 0) {
+        send({ direction: "stop" });
+      } else {
+        const lastKey = [...pressed].findLast((k) => DIRECTION_KEYS[k]);
+        if (lastKey) send({ direction: DIRECTION_KEYS[lastKey] });
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      clearInterval(shootInterval.current!);
+      ws.current?.close();
+    };
+  }, [name, onMessage]);
+}
